@@ -521,7 +521,7 @@ public class Matrix {
     ///////////////////////////////////////////////
 
     // Data visualization tool
-    public void printDistr(float sample){
+    public void printDistr(int width, float scale){
         /*
          * Helps to visualize the distribution of our sorted data
          * Example for a xavier distribution with 0.2F sampling
@@ -543,6 +543,7 @@ public class Matrix {
         ArrayList<Float> ticks = new ArrayList<Float>();
 
         float inf = sorted_array[0];
+        float sample = (sorted_array[sorted_array.length-1] - inf) / (float)width;
         float sup = inf + sample;
         int counter = 0;
         freq_distr.add(counter);
@@ -564,8 +565,17 @@ public class Matrix {
         }
         for(int i = 0; i < freq_distr.size(); ++i){
             int occurrences = freq_distr.get(i);
-            System.out.printf("[%3.2f; %3.2f]", ticks.get(i), ticks.get(i)+sample);
-            for(int occ = 0; occ < occurrences; ++occ){
+            float first = ticks.get(i);
+            float second = ticks.get(i)+sample;
+            if(first < 0 && second < 0){
+                System.out.printf("[%3.2f;%3.2f]", first, second);
+            } else if(first < 0 && second >= 0){
+                System.out.printf("[%3.2f; %3.2f]", first, second);
+            } else {
+                System.out.printf("[ %3.2f; %3.2f]", first, second);
+            }
+
+            for(int occ = 0; occ < (int)(occurrences * scale); ++occ){
                 System.out.printf("-");
             }
             System.out.printf("> (%d)\n", occurrences);
