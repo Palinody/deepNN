@@ -159,19 +159,19 @@ public class Matrix {
 
     public Matrix max(int axes) {
         /*
-         * axes = -1 : max element of matrix
-         *      output -> 1x1 matrix
          * axes = 0 : row-wise max of matrix
          *      output -> mx1 matrix
          * axes = 1 : column-wise max of matrix
          *      output -> 1xn matrix
+         * else : max element of matrix
+         *      output -> 1x1 matrix
          * */
         float curr_max;
 
         if (axes == 0) {
             Matrix res = new Matrix(this._m, 1);
             for (int i = 0; i < this._m; ++i) {
-                curr_max = 0;
+                curr_max = -Float.MAX_VALUE;
                 for (int j = 0; j < this._n; ++j) {
                     float curr_val = this._matrix[j + i * this._n];
                     curr_max = Math.max(curr_val, curr_max);
@@ -182,7 +182,7 @@ public class Matrix {
         } else if (axes == 1) {
             Matrix res = new Matrix(1, this._n);
             for (int j = 0; j < this._n; ++j) {
-                curr_max = 0;
+                curr_max = -Float.MAX_VALUE;
                 for (int i = 0; i < this._m; ++i) {
                     float curr_val = this._matrix[j + i * this._n];
                     curr_max = Math.max(curr_val, curr_max);
@@ -191,7 +191,7 @@ public class Matrix {
             }
             return res;
         } else {
-            curr_max = 0;
+            curr_max = -Float.MAX_VALUE;
             for (int i = 0; i < this._m; ++i) {
                 for (int j = 0; j < this._n; ++j) {
                     float curr_val = this._matrix[j + i * this._n];
@@ -199,6 +199,51 @@ public class Matrix {
                 }
             }
             return new Matrix(1, 1, curr_max);
+        }
+    }
+
+    public Matrix min(int axes) {
+        /*
+         * axes = 0 : row-wise min of matrix
+         *      output -> mx1 matrix
+         * axes = 1 : column-wise min of matrix
+         *      output -> 1xn matrix
+         * else : min element of matrix
+         *      output -> 1x1 matrix
+         * */
+        float curr_min;
+
+        if (axes == 0) {
+            Matrix res = new Matrix(this._m, 1);
+            for (int i = 0; i < this._m; ++i) {
+                curr_min = Float.MAX_VALUE;
+                for (int j = 0; j < this._n; ++j) {
+                    float curr_val = this._matrix[j + i * this._n];
+                    curr_min = Math.min(curr_val, curr_min);
+                }
+                res.set(i, 0, curr_min);
+            }
+            return res;
+        } else if (axes == 1) {
+            Matrix res = new Matrix(1, this._n);
+            for (int j = 0; j < this._n; ++j) {
+                curr_min = Float.MAX_VALUE;
+                for (int i = 0; i < this._m; ++i) {
+                    float curr_val = this._matrix[j + i * this._n];
+                    curr_min = Math.min(curr_val, curr_min);
+                }
+                res.set(0, j, curr_min);
+            }
+            return res;
+        } else {
+            curr_min = Float.MAX_VALUE;
+            for (int i = 0; i < this._m; ++i) {
+                for (int j = 0; j < this._n; ++j) {
+                    float curr_val = this._matrix[j + i * this._n];
+                    curr_min = Math.min(curr_val, curr_min);
+                }
+            }
+            return new Matrix(1, 1, curr_min);
         }
     }
     ///////////////////////////////////////////////
