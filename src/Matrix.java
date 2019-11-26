@@ -1,40 +1,41 @@
 import java.util.*;
 
-public class Matrix {
-    private float[] _matrix;
-    private int _m, _n;
+public class Matrix extends Streams {
 
     Matrix(){
     }
-
+    // cpy constructor
     Matrix(float[] data, int m, int n){
         this._m = m;
         this._n = n;
-        this._matrix = data.clone();
+        this._f_matrix = data.clone();
     }
-
     // cpy constructor
     Matrix(Matrix other){
-        this._matrix = other._matrix.clone();
         this._m = other._m;
         this._n = other._n;
+        this._f_matrix = other._f_matrix.clone();
+    }
+    // obj init with data from binary file
+    Matrix(String from_file){
+        super(from_file);
     }
 
     Matrix(int m, int n){
-        //_matrix = new ArrayList(m*n);
+        //_f_matrix = new ArrayList(m*n);
         this._m = m;
         this._n = n;
-        this._matrix = new float[m*n];
+        this._f_matrix = new float[m*n];
     }
 
     Matrix(int m, int n, float value){
-        //_matrix = new ArrayList(m*n);
+        //_f_matrix = new ArrayList(m*n);
         this._m = m;
         this._n = n;
-        this._matrix = new float[m*n];
+        this._f_matrix = new float[m*n];
         for(int i = 0; i < m; ++i){
             for(int j  = 0; j < n; ++j){
-                this._matrix[j + i * n] = value;
+                this._f_matrix[j + i * n] = value;
             }
         }
     }
@@ -42,38 +43,38 @@ public class Matrix {
     Matrix(int m, int n, String distr){
         this._m = m;
         this._n = n;
-        this._matrix = new float[m*n];
+        this._f_matrix = new float[m*n];
 
         PRNG prng = new PRNG();
 
         if(distr.equals("gauss")){
             for(int i = 0; i < m; ++i){
                 for(int j  = 0; j < n; ++j){
-                    this._matrix[j + i * n] = prng.gaussian(0, 1);
+                    this._f_matrix[j + i * n] = prng.gaussian(0, 1F);
                 }
             }
         } else if (distr.equals("xavier")) {
             for (int i = 0; i < m; ++i) {
                 for (int j = 0; j < n; ++j) {
-                    this._matrix[j + i * n] = prng.xavier(_m, _n);
+                    this._f_matrix[j + i * n] = prng.xavier(_m, _n);
                 }
             }
         } else if (distr.equals("uniform")) {
             for (int i = 0; i < m; ++i) {
                 for (int j = 0; j < n; ++j) {
-                    this._matrix[j + i * n] = prng.uniform(0, 1);
+                    this._f_matrix[j + i * n] = prng.uniform(0, 1);
                 }
             }
         } else if (distr.equals("integer")) {
             for (int i = 0; i < m; ++i) {
                 for (int j = 0; j < n; ++j) {
-                    this._matrix[j + i * n] = prng.randInt(0, 1);
+                    this._f_matrix[j + i * n] = prng.randInt(0, 1);
                 }
             }
         } else { // default is N(0, 1)
             for(int i = 0; i < m; ++i){
                 for(int j  = 0; j < n; ++j){
-                    this._matrix[j + i * n] = prng.gaussian(0, 1);
+                    this._f_matrix[j + i * n] = prng.gaussian(0, 1);
                 }
             }
         }
@@ -84,14 +85,14 @@ public class Matrix {
     ///////////////////////////////////////////////
 
     public float get(int i, int j){
-        return this._matrix[j + i * this._n];
+        return this._f_matrix[j + i * this._n];
     }
     public int getM(){ return this._m; }
     public int getN(){ return this._n; }
     public int getSize(){ return this._m * this._n; }
 
     public void set(int i, int j, float value){
-        this._matrix[j + i * this._n] = value;
+        this._f_matrix[j + i * this._n] = value;
     }
 
     ///////////////////////////////////////////////
@@ -102,7 +103,7 @@ public class Matrix {
     public void copy(Matrix rhs){
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                this._matrix[j + i * this._n] = rhs.get(i, j);
+                this._f_matrix[j + i * this._n] = rhs.get(i, j);
             }
         }
     }
@@ -111,14 +112,14 @@ public class Matrix {
     public void copy(float[] rhs, int m, int n){
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                this._matrix[j + i * this._n] = rhs[j + i * this._n];
+                this._f_matrix[j + i * this._n] = rhs[j + i * this._n];
             }
         }
     }
 
     // sorts the matrix row-wise and returns a new vector of size m*n
     public float[] sort(){
-        float[] sorted_array = this._matrix.clone();
+        float[] sorted_array = this._f_matrix.clone();
         Arrays.sort(sorted_array);
         return sorted_array;
     }
@@ -127,7 +128,7 @@ public class Matrix {
         Matrix res = new Matrix(this._n, this._m);
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                res.set(j, i, this._matrix[j + i * this._n]);
+                res.set(j, i, this._f_matrix[j + i * this._n]);
             }
         }
         return res;
@@ -138,7 +139,7 @@ public class Matrix {
         for(int j = 0; j < this._n; ++j){
             float temp = 0;
             for(int i = 0; i < this._m; ++i){
-                temp += this._matrix[j + i * this._n];
+                temp += this._f_matrix[j + i * this._n];
             }
             res.set(0, j, temp);
         }
@@ -150,7 +151,7 @@ public class Matrix {
         for(int i = 0; i < this._m; ++i){
             float temp = 0;
             for(int j = 0; j < this._n; ++j){
-                temp += this._matrix[j + i * this._n];
+                temp += this._f_matrix[j + i * this._n];
             }
             res.set(i, 0, temp);
         }
@@ -173,7 +174,7 @@ public class Matrix {
             for (int i = 0; i < this._m; ++i) {
                 curr_max = -Float.MAX_VALUE;
                 for (int j = 0; j < this._n; ++j) {
-                    float curr_val = this._matrix[j + i * this._n];
+                    float curr_val = this._f_matrix[j + i * this._n];
                     curr_max = Math.max(curr_val, curr_max);
                 }
                 res.set(i, 0, curr_max);
@@ -184,7 +185,7 @@ public class Matrix {
             for (int j = 0; j < this._n; ++j) {
                 curr_max = -Float.MAX_VALUE;
                 for (int i = 0; i < this._m; ++i) {
-                    float curr_val = this._matrix[j + i * this._n];
+                    float curr_val = this._f_matrix[j + i * this._n];
                     curr_max = Math.max(curr_val, curr_max);
                 }
                 res.set(0, j, curr_max);
@@ -194,7 +195,7 @@ public class Matrix {
             curr_max = -Float.MAX_VALUE;
             for (int i = 0; i < this._m; ++i) {
                 for (int j = 0; j < this._n; ++j) {
-                    float curr_val = this._matrix[j + i * this._n];
+                    float curr_val = this._f_matrix[j + i * this._n];
                     curr_max = Math.max(curr_val, curr_max);
                 }
             }
@@ -218,7 +219,7 @@ public class Matrix {
             for (int i = 0; i < this._m; ++i) {
                 curr_min = Float.MAX_VALUE;
                 for (int j = 0; j < this._n; ++j) {
-                    float curr_val = this._matrix[j + i * this._n];
+                    float curr_val = this._f_matrix[j + i * this._n];
                     curr_min = Math.min(curr_val, curr_min);
                 }
                 res.set(i, 0, curr_min);
@@ -229,7 +230,7 @@ public class Matrix {
             for (int j = 0; j < this._n; ++j) {
                 curr_min = Float.MAX_VALUE;
                 for (int i = 0; i < this._m; ++i) {
-                    float curr_val = this._matrix[j + i * this._n];
+                    float curr_val = this._f_matrix[j + i * this._n];
                     curr_min = Math.min(curr_val, curr_min);
                 }
                 res.set(0, j, curr_min);
@@ -239,13 +240,18 @@ public class Matrix {
             curr_min = Float.MAX_VALUE;
             for (int i = 0; i < this._m; ++i) {
                 for (int j = 0; j < this._n; ++j) {
-                    float curr_val = this._matrix[j + i * this._n];
+                    float curr_val = this._f_matrix[j + i * this._n];
                     curr_min = Math.min(curr_val, curr_min);
                 }
             }
             return new Matrix(1, 1, curr_min);
         }
     }
+    // writes matrix content in binary format
+    void writeBinary(String to_path){
+        this.write_buff(to_path);
+    }
+
     ///////////////////////////////////////////////
     //      OPERATORS MATRIX - MATRIX            //
     ///////////////////////////////////////////////
@@ -259,7 +265,7 @@ public class Matrix {
         for(int i = 0; i < new_m; ++i){
             for(int j = 0; j < new_n; ++j){
                 for(int k = 0; k < this._n; ++k){
-                    temp += this._matrix[k + i * this._n] * rhs.get(k, j);
+                    temp += this._f_matrix[k + i * this._n] * rhs.get(k, j);
                 }
                 res.set(i, j, temp);
                 temp = 0;
@@ -280,7 +286,7 @@ public class Matrix {
         for(int i = 0; i < new_m; ++i){
             for(int j = 0; j < new_n; ++j){
                 for(int k = 0; k < this._n; ++k){
-                    temp += this._matrix[k + i * this._n] * rhs.get(j, k);
+                    temp += this._f_matrix[k + i * this._n] * rhs.get(j, k);
                 }
                 res.set(i, j, temp);
                 temp = 0;
@@ -301,7 +307,7 @@ public class Matrix {
         for(int i = 0; i < new_m; ++i){
             for(int j = 0; j < new_n; ++j){
                 for(int k = 0; k < this._m; ++k){
-                    temp += this._matrix[i + k * this._n] * rhs.get(k, j);
+                    temp += this._f_matrix[i + k * this._n] * rhs.get(k, j);
                 }
                 res.set(i, j, temp);
                 temp = 0;
@@ -315,14 +321,14 @@ public class Matrix {
          * make sure dimensions are correct
          * will maybe add some error handling
          * */
-        Matrix new_matrix = new Matrix(this._m, this._n);
+        Matrix new_f_matrix = new Matrix(this._m, this._n);
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                float value = this._matrix[j + i * this._n] + rhs.get(i, j);
-                new_matrix.set(i, j, value);
+                float value = this._f_matrix[j + i * this._n] + rhs.get(i, j);
+                new_f_matrix.set(i, j, value);
             }
         }
-        return new_matrix;
+        return new_f_matrix;
     }
 
     public Matrix subMat(Matrix rhs){
@@ -330,14 +336,14 @@ public class Matrix {
          * make sure dimensions are correct
          * will maybe add some error handling
          * */
-        Matrix new_matrix = new Matrix(this._m, this._n);
+        Matrix new_f_matrix = new Matrix(this._m, this._n);
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                float value = this._matrix[j + i * this._n] - rhs.get(i, j);
-                new_matrix.set(i, j, value);
+                float value = this._f_matrix[j + i * this._n] - rhs.get(i, j);
+                new_f_matrix.set(i, j, value);
             }
         }
-        return new_matrix;
+        return new_f_matrix;
     }
     // element-wise multiplication
     public Matrix multMat(Matrix rhs){
@@ -345,14 +351,14 @@ public class Matrix {
          * make sure dimensions are correct
          * will maybe add some error handling
          * */
-        Matrix new_matrix = new Matrix(this._m, this._n);
+        Matrix new_f_matrix = new Matrix(this._m, this._n);
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                float value = this._matrix[j + i * this._n] * rhs.get(i, j);
-                new_matrix.set(i, j, value);
+                float value = this._f_matrix[j + i * this._n] * rhs.get(i, j);
+                new_f_matrix.set(i, j, value);
             }
         }
-        return new_matrix;
+        return new_f_matrix;
     }
     // element-wise division
     public Matrix divMat(Matrix rhs){
@@ -360,14 +366,14 @@ public class Matrix {
          * make sure dimensions are correct
          * will maybe add some error handling
          * */
-        Matrix new_matrix = new Matrix(this._m, this._n);
+        Matrix new_f_matrix = new Matrix(this._m, this._n);
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                float value = this._matrix[j + i * this._n] / (rhs.get(i, j) + 1e-8F);
-                new_matrix.set(i, j, value);
+                float value = this._f_matrix[j + i * this._n] / (rhs.get(i, j) + 1e-8F);
+                new_f_matrix.set(i, j, value);
             }
         }
-        return new_matrix;
+        return new_f_matrix;
     }
     // element-wise addition (SELF)
     public void selfAddMat(Matrix rhs){
@@ -377,7 +383,7 @@ public class Matrix {
          * */
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                this._matrix[j + i * this._n] += rhs.get(i, j);
+                this._f_matrix[j + i * this._n] += rhs.get(i, j);
             }
         }
     }
@@ -389,7 +395,7 @@ public class Matrix {
          * */
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                this._matrix[j + i * this._n] -= rhs.get(i, j);
+                this._f_matrix[j + i * this._n] -= rhs.get(i, j);
             }
         }
     }
@@ -401,7 +407,7 @@ public class Matrix {
          * */
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                this._matrix[j + i * this._n] *= rhs.get(i, j);
+                this._f_matrix[j + i * this._n] *= rhs.get(i, j);
             }
         }
     }
@@ -413,7 +419,7 @@ public class Matrix {
          * */
         for(int i = 0; i < this._m; ++i){
             for(int j = 0; j < this._n; ++j){
-                this._matrix[j + i * this._n] /= (rhs.get(i, j) + 1e-8F);
+                this._f_matrix[j + i * this._n] /= (rhs.get(i, j) + 1e-8F);
             }
         }
     }
@@ -437,25 +443,25 @@ public class Matrix {
         if(operator == '+'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] += rhs.get(i, 0);
+                    this._f_matrix[j + i * this._n] += rhs.get(i, 0);
                 }
             }
         } else if(operator == '-'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] -= rhs.get(i, 0);
+                    this._f_matrix[j + i * this._n] -= rhs.get(i, 0);
                 }
             }
         } else if(operator == '*'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] *= rhs.get(i, 0);
+                    this._f_matrix[j + i * this._n] *= rhs.get(i, 0);
                 }
             }
         } else if(operator == '/'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] /= (rhs.get(i, 0) + 1e-8F);
+                    this._f_matrix[j + i * this._n] /= (rhs.get(i, 0) + 1e-8F);
                 }
             }
         }
@@ -475,25 +481,25 @@ public class Matrix {
         if(operator == '+'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] += rhs.get(0, j);
+                    this._f_matrix[j + i * this._n] += rhs.get(0, j);
                 }
             }
         } else if(operator == '-'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] -= rhs.get(0, j);
+                    this._f_matrix[j + i * this._n] -= rhs.get(0, j);
                 }
             }
         } else if(operator == '*'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] *= rhs.get(0, j);
+                    this._f_matrix[j + i * this._n] *= rhs.get(0, j);
                 }
             }
         } else if(operator == '/'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] /= (rhs.get(0, j) + 1e-8F);
+                    this._f_matrix[j + i * this._n] /= (rhs.get(0, j) + 1e-8F);
                 }
             }
         }
@@ -511,25 +517,25 @@ public class Matrix {
         if(operator == '+'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] += rhs;
+                    this._f_matrix[j + i * this._n] += rhs;
                 }
             }
         } else if(operator == '-'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] -= rhs;
+                    this._f_matrix[j + i * this._n] -= rhs;
                 }
             }
         } else if(operator == '*'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] *= rhs;
+                    this._f_matrix[j + i * this._n] *= rhs;
                 }
             }
         } else if(operator == '/'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] /= (rhs + 1e-8F);
+                    this._f_matrix[j + i * this._n] /= (rhs + 1e-8F);
                 }
             }
         }
@@ -546,7 +552,7 @@ public class Matrix {
         } else if(operator == '-'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] = lhs - this._matrix[j + i * this._n];
+                    this._f_matrix[j + i * this._n] = lhs - this._f_matrix[j + i * this._n];
                 }
             }
         } else if(operator == '*'){
@@ -554,7 +560,7 @@ public class Matrix {
         } else if(operator == '/'){
             for(int i = 0; i < this._m; ++i){
                 for(int j = 0; j < this._n; ++j){
-                    this._matrix[j + i * this._n] = (lhs + 1e-8F) / this._matrix[j + i * this._n];
+                    this._f_matrix[j + i * this._n] = (lhs + 1e-8F) / this._f_matrix[j + i * this._n];
                 }
             }
         }
@@ -625,14 +631,16 @@ public class Matrix {
             }
             System.out.printf("> (%d)\n", occurrences);
         }
+        System.out.println();
     }
 
     public void print(){
         System.out.println("-----");
         for(int i = 0; i < this._m; ++i) {
             for (int j = 0; j < this._n; ++j) {
-                System.out.print(this._matrix[j + i * this._n] + " ");
+                System.out.print(this._f_matrix[j + i * this._n] + " ");
             } System.out.println();
         } System.out.println("-----");
     }
 }
+
