@@ -212,7 +212,7 @@ public class Function{
             }
         }
     }
-    
+
     public static void sqrt(Matrix data){
         for(int i = 0; i < data.getM(); ++i){
             for(int j = 0; j < data.getN(); ++j){
@@ -231,4 +231,3 @@ public class Function{
         }
     }
 }
-
