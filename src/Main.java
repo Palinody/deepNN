@@ -213,7 +213,7 @@ public class Main {
          * TODO
          * save necessary binaries
          * print the images in console (done)
-         *
+         * shuffle dataset for each new epoch
          * */
         int batch_size = 32;
         int input_nodes = 784;
