@@ -108,6 +108,26 @@ public class Matrix extends Streams {
         }
     }
 
+    /**
+     * Copies data from a slice of rhs to this.
+     * User must be cautious with dimensions.
+     * to_i-from_i and to_j_from_j are defined by
+     * this._m resp. this._n
+     * @param from_i : start parsing from line
+     * @param from_j : start parsing from column
+     * @return None : this._f_matrix directly modified
+    * */
+    public void copy_slice(Matrix rhs, int from_i, int from_j){
+        try{
+            for(int i = 0; i < this._m; ++i){
+                for(int j = 0; j < this._n; ++j){
+                    this._f_matrix[j + i * this._n] = rhs.get(from_i+i, from_j+j);
+                }
+            }
+        } catch (Exception e){ e.printStackTrace(); }
+
+    }
+
     // copies data from vector (requirement : m = this._m; n = this._n;)
     public void copy(float[] rhs, int m, int n){
         for(int i = 0; i < this._m; ++i){
@@ -216,13 +236,13 @@ public class Matrix extends Streams {
 
         if (axes == 0) {
             Matrix res = new Matrix(this._m, 1);
-            for (int i = 0; i < this._m; ++i) {
-                curr_min = Float.MAX_VALUE;
-                for (int j = 0; j < this._n; ++j) {
-                    float curr_val = this._f_matrix[j + i * this._n];
-                    curr_min = Math.min(curr_val, curr_min);
-                }
-                res.set(i, 0, curr_min);
+                for (int i = 0; i < this._m; ++i) {
+                    curr_min = Float.MAX_VALUE;
+                    for (int j = 0; j < this._n; ++j) {
+                        float curr_val = this._f_matrix[j + i * this._n];
+                        curr_min = Math.min(curr_val, curr_min);
+                    }
+                    res.set(i, 0, curr_min);
             }
             return res;
         } else if (axes == 1) {
@@ -250,6 +270,93 @@ public class Matrix extends Streams {
     // writes matrix content in binary format
     void writeBinary(String to_path){
         this.write_buff(to_path);
+    }
+
+    public Matrix indexOfMax(int axes){
+        /*
+         * axes = 0 : row-wise index of max of matrix
+         *      output -> mx1 matrix
+         * axes = 1 : column-wise index of max of matrix
+         *      output -> 1xn matrix
+         * else returns a 1x2 matrix containing i j coord.
+         * of the overall max value
+         * */
+        float curr_max;
+        int curr_max_index = -1;
+
+        if(axes == 0) {
+            Matrix res = new Matrix(this._m, 1);
+            for (int i = 0; i < this._m; ++i) {
+                curr_max = -Float.MAX_VALUE;
+                for (int j = 0; j < this._n; ++j) {
+                    float curr_val = this._f_matrix[j + i * this._n];
+                    if (curr_val > curr_max) {
+                        curr_max = curr_val;
+                        curr_max_index = j;
+                    }
+                }
+                res.set(i, 0, (float) curr_max_index);
+            }
+            return res;
+        }else if(axes == 1){
+                Matrix res = new Matrix(1, this._n);
+                for (int j = 0; j < this._n; ++j) {
+                    curr_max = -Float.MAX_VALUE;
+                    for (int i = 0; i < this._m; ++i) {
+                        float curr_val = this._f_matrix[j + i * this._n];
+                        if(curr_val > curr_max){
+                            curr_max = curr_val;
+                            curr_max_index = i;
+                        }
+                    }
+                    res.set(0, j, (float)curr_max_index);
+            }
+            return res;
+        } else {
+            curr_max = -Float.MAX_VALUE;
+            int curr_max_i = -1;
+            int curr_max_j = -1;
+            for (int i = 0; i < this._m; ++i) {
+                for (int j = 0; j < this._n; ++j) {
+                    float curr_val = this._f_matrix[j + i * this._n];
+                    if(curr_val > curr_max){
+                        curr_max = curr_val;
+                        curr_max_i = i;
+                        curr_max_j = j;
+                    }
+                }
+            }
+            Matrix res = new Matrix(1, 2);
+            res.set(0, 0, curr_max_i);
+            res.set(0, 1, curr_max_j);
+            return res;
+
+        }
+    }
+
+    public boolean isEqual(Matrix rhs){
+        for(int i = 0; i < this._m; ++i){
+            for(int j = 0; j < this._n; ++j){
+                float value_rhs = rhs.get(i, j);
+                if(value_rhs != this._f_matrix[j + i * this._n]){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public Matrix isEqualMatrix(Matrix rhs){
+        Matrix res = new Matrix(this._m, this._n);
+        for(int i = 0; i < this._m; ++i){
+            for(int j = 0; j < this._n; ++j){
+                float value_rhs = rhs.get(i, j);
+                if(value_rhs == this._f_matrix[j + i * this._n]){
+                    res.set(i, j, 1F);
+                }
+            }
+        }
+        return res;
     }
 
     ///////////////////////////////////////////////
@@ -642,5 +749,22 @@ public class Matrix extends Streams {
             } System.out.println();
         } System.out.println("-----");
     }
-}
 
+    public void print_range(int from_i, int to_i, int from_j, int to_j){
+        System.out.println("-----");
+        for(int i = from_i; i < to_i; ++i) {
+            for (int j = from_j; j < to_j; ++j) {
+                System.out.print(this._f_matrix[j + i * this._n] + " ");
+            } System.out.println();
+        } System.out.println("-----");
+    }
+
+    public void print_lines(int from_i, int to_i){
+        System.out.println("-----");
+        for(int i = from_i; i < to_i; ++i) {
+            for (int j = 0; j < this._n; ++j) {
+                System.out.print(this._f_matrix[j + i * this._n] + " ");
+            } System.out.println();
+        } System.out.println("-----");
+    }
+}
