@@ -265,6 +265,8 @@ public class Main {
                     BATCH_INPUT.copy_slice(TRAIN_DATA_INPUTS_NORMALIZED, line, 0);
                     BATCH_LABELS.copy_slice(TRAIN_DATA_LABELS_ONE_HOT_VECT, line, 0);
                 } catch (Exception e) {
+                    BATCH_INPUT = new Matrix(cr_train.getCSVRows()-line, TRAIN_DATA_INPUTS_NORMALIZED.getN());
+                    BATCH_LABELS = new Matrix(cr_train.getCSVRows()-line, TRAIN_DATA_LABELS_ONE_HOT_VECT.getN());
                     BATCH_INPUT.copy_slice(TRAIN_DATA_INPUTS_NORMALIZED, cr_train.getCSVRows()-line, 0);
                     BATCH_LABELS.copy_slice(TRAIN_DATA_LABELS_ONE_HOT_VECT, cr_train.getCSVRows()-line, 0);
                 }
