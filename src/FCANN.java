@@ -32,7 +32,7 @@ public class FCANN{
         _bias_list = new Matrix[_layers-1]; // bias data
 
         for(int l = 0; l < _layers-1; ++l){
-            _gradients_list[l] = new Matrix(_batch, _model[l+1]); // useless to initialize them because references are going to be copied
+            _gradients_list[l] = new Matrix(_batch, _model[l+1]);
             _layers_list[l] = new Matrix(_batch, _model[l]);
             _weights_list[l] = new Matrix(_model[l], _model[l+1], distr);
             _bias_list[l] = new Matrix(1, _model[l+1], distr);
@@ -49,7 +49,24 @@ public class FCANN{
     //              GETTER/SETTER                //
     ///////////////////////////////////////////////
 
+    private void setReallocation(int new_batch_size){
+        /**
+         * Layer matrices need to be reallocated if we
+         * want to use the model with a different batch size
+         * */
+        _batch = new_batch_size;
+        _layers_list = new Matrix[_layers];
+        for(int l = 0; l < _layers-1; ++l){
+            _layers_list[l] = new Matrix(new_batch_size, _model[l]);
+        }
+        _layers_list[_layers-1] = new Matrix(_batch, _model[_layers-1]);
+        LABELS = new Matrix(_batch, _model[_layers-1]);
+    }
+
     public void setData(Matrix inputs, Matrix labels){
+        if(inputs.getM() != _batch){
+            setReallocation(inputs.getM());
+        }
         _layers_list[0].copy(inputs);
         LABELS.copy(labels);
     }
@@ -77,7 +94,12 @@ public class FCANN{
         return error_vector.get(0, 0) / (float)n;
     }
 
-    Matrix getPrediction(){
+    Matrix getPrediction(Matrix inputs){
+        if(inputs.getM() != _batch){
+            setReallocation(inputs.getM());
+        }
+        _layers_list[0].copy(inputs);
+        feedForward();
         return _layers_list[_layers-1];
     }
     ///////////////////////////////////////////////
@@ -253,6 +275,21 @@ public class FCANN{
             }
         }
     }
+
+    public float evaluate(Matrix inputs, Matrix targets){
+        // works only for multiclass
+        {
+            this.setData(inputs, targets);
+            this.feedForward();
+            // get the max value of predictions
+            Matrix res_prediction = _layers_list[_layers - 1].indexOfMax(0);
+            // get the max value of targets
+            Matrix res_targets = LABELS.indexOfMax(0);
+            Matrix result = res_prediction.isEqualMatrix(res_targets);
+            result = result.vSum();
+            return result.get(0, 0) / (this._batch);
+        }
+    }
     ///////////////////////////////////////////////
     //              VISUALIZATION                //
     ///////////////////////////////////////////////
@@ -304,6 +341,33 @@ public class FCANN{
         }
     }
 
+    public void printModelDistr(char data, int width, float scale){
+        /*
+         * attempts to show the distribution of a matrix
+         * width and scale must be tried in order to find
+         * a scale that makes the graph look nice
+        * */
+        if(data == 'w'){
+            for(int l = 0; l < _layers-1; ++l){
+                _weights_list[l].printDistr(width, scale);
+            }
+        } else if(data == 'b'){
+            for(int l = 0; l < _layers-1; ++l) {
+                _bias_list[l].printDistr(width, scale);
+            }
+        } else if(data == 'l'){
+            for(int l = 0; l < _layers; ++l) {
+                _layers_list[l].printDistr(width, scale);
+            }
+        }  else if(data == 'g'){
+            for(int l = 0; l < _layers-1; ++l) {
+                _gradients_list[l].printDistr(width, scale);
+            }
+        } else {
+            System.out.println("printModel() takes w (weights), b (bias), l (layer) or g (gradients) as argument");
+        }
+    }
+
     public void printModelMem(){
         int temp = 0;
         for(int l = 0; l < _layers-1; ++l){
@@ -313,9 +377,9 @@ public class FCANN{
         // last layer
         temp += 4 * (_batch * _model[_layers-1]);
 
-        if(temp >= 1e9){ float temp_f = (float)temp * 1e-9F; System.out.printf("Mem. alloc.: %.3f Gbytes", temp_f);}
-        else if(temp >= 1e6){ float temp_f = (float)temp * 1e-6F; System.out.printf("Mem. alloc.: %.3f Mbytes", temp_f);}
-        else if(temp >= 1e3){ float temp_f = (float)temp * 1e-3F; System.out.printf("Mem. alloc.: %.3f Kbytes", temp_f);}
-        else {System.out.printf("Mem. alloc.: %d bytes", temp);}
+        if(temp >= 1e9){ float temp_f = (float)temp * 1e-9F; System.out.printf("Mem. alloc.: %.3f Gbytes\n", temp_f);}
+        else if(temp >= 1e6){ float temp_f = (float)temp * 1e-6F; System.out.printf("Mem. alloc.: %.3f Mbytes\n", temp_f);}
+        else if(temp >= 1e3){ float temp_f = (float)temp * 1e-3F; System.out.printf("Mem. alloc.: %.3f Kbytes\n", temp_f);}
+        else {System.out.printf("Mem. alloc.: %d bytes\n", temp);}
     }
 }
