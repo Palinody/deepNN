@@ -56,7 +56,9 @@ public class FCANN{
          * */
         _batch = new_batch_size;
         _layers_list = new Matrix[_layers];
+        _gradients_list = new Matrix[_layers-1];
         for(int l = 0; l < _layers-1; ++l){
+            _gradients_list[l] = new Matrix(_batch, _model[l+1]);
             _layers_list[l] = new Matrix(new_batch_size, _model[l]);
         }
         _layers_list[_layers-1] = new Matrix(_batch, _model[_layers-1]);
