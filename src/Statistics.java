@@ -39,7 +39,7 @@ public class Statistics {
         data.vBroadcast(sigma, '/');
     }
 
-    public static void normalize_min_max(Matrix data, float a, float b){
+    public static void normalize_by_feature_min_max(Matrix data, float a, float b){
         /**
          * Min-Max feature scaling [0-1] : X' = (X - Xmin) / (Xmax - Xmin)
          * Generalized [a, b] : X' = a + (X - Xmin)(b - a) / (Xmax - Xmin)
@@ -56,6 +56,46 @@ public class Statistics {
             data.vBroadcast(Xmin, '-');
             data.vBroadcast(Xmax_sub_Xmin, '/');
         }
+    }
+
+    public static void normalize_min_max(Matrix data, float a, float b){
+        /**
+         * Min-Max feature scaling [0-1] : X' = (X - Xmin) / (Xmax - Xmin)
+         * Generalized [a, b] : X' = a + (X - Xmin)(b - a) / (Xmax - Xmin)
+         * */
+        // get overall max/min
+        float Xmax = data.max(-1).get(0, 0);
+        float Xmin = data.min(-1).get(0, 0);
+        float Xmax_sub_Xmin = Xmax - Xmin;
+        if(a != 0 || b != 1){
+            data.elemOperation(Xmin, '-');
+            data.elemOperation((b-a)/Xmax_sub_Xmin, '*');
+            data.elemOperation(a, '+');
+        } else {
+            data.elemOperation(Xmin, '-');
+            data.elemOperation(1F/Xmax_sub_Xmin, '*');
+        }
+    }
+    /**
+     * Converts each digit of a dataset into a one-hot vector
+     * which dimension is based on the absolute difference
+     * in between max and min of the dataset.
+     * E.g.: if dataset consists of integers [-2, 10]
+     * -> |10 - (-2)| + 1 = 13 -> 13 classes
+     * @param data : vertical vector of digits
+     * @return res : each line -> one-hot vector
+     */
+    public static Matrix digits_matrix_to_one_hot_matrix(Matrix data){
+        float min = data.min(-1).get(0, 0);
+        float max = data.max(-1).get(0, 0);
+        int one_hot_length = (int)Math.abs(max - min) + 1;
+        Matrix res = new Matrix(data.getM(), one_hot_length);
+
+        for(int i = 0; i < data.getM(); ++i){
+            // we need to add |min| to get indexes >= 0
+            res.set(i, (int)(data.get(i, 0)+Math.abs(min)), 1F);
+        }
+        return res;
     }
 
     public static Matrix getVMR(Matrix data){
