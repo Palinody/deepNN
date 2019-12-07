@@ -200,7 +200,9 @@ public class FCANN{
                 break;
             case "CE":
                 if(OUTPUT_ACTIVATION != "linear") {
-                    _gradients_list[_layers - 2] = Function.der_CE(_layers_list[_layers - 1], LABELS).multMat(layer_derivative);
+                    Matrix output_cpy = new Matrix(_layers_list[_layers - 1]);
+                    output_cpy.selfSubMat(LABELS);
+                    _gradients_list[_layers - 2] = output_cpy;//Function.der_CE(_layers_list[_layers - 1], LABELS).multMat(layer_derivative);
                 } else { _gradients_list[_layers - 2] = Function.der_CE(_layers_list[_layers - 1], LABELS); }
                 break;
             default:
