@@ -77,6 +77,7 @@ public class FCANN{
         /* currently:
          *      MSE
          *      binary cross-entropy
+         *      Cross Entropy (multi class)
          * */
         Matrix error_vector = new Matrix();
         // output -> horizontal vector
